@@ -1,0 +1,60 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "your_google_sheet_id",
+        "range": "Sheet1!A1",
+        "data": [
+          ["Job Title", "Company", "Location", "Price"]
+        ]
+      },
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [300, 300],
+      "credentials": {
+        "googleApi": "Google API"
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const jobs = [\n  { title: 'Job 1', company: 'Company A', location: 'Location A', price: 100 },\n  { title: 'Job 2', company: 'Company B', location: 'Location B', price: 200 }\n];\nreturn jobs.map(job => [job.title, job.company, job.location, job.price]);"
+      },
+      "name": "Prepare Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "operation": "sendEmail",
+        "toEmail": "recipient@example.com",
+        "subject": "New High-Value Job",
+        "message": "A new high-value job is available: {{$node[\"Prepare Data\"].output[0][0]}}"
+      },
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [500, 300]
+    }
+  ],
+  "connections": {
+    "Prepare Data": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
